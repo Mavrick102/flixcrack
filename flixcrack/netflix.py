@@ -275,10 +275,10 @@ class NetflixClient:
             stderr=asyncio.subprocess.PIPE
         )
         std = await proc.communicate()
-        self.log(std)
         error = std[0].decode().strip().split("\n")[-1].strip()
-        if "completed successfully." not in error.lower():
-            os.remove(output)
+        if "completed successfully" not in error.lower():
+            if os.path.exists(output):
+                os.remove(output)
             raise DecryptionError(f"Error decrypting: {error}")
         os.remove(_input)
 
