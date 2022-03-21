@@ -58,6 +58,7 @@ class NetflixClient:
         subtitle_language: list = [],
         forced_language: list = [],
         shaka_executable: str = "shakapackager",
+        verbose: bool = False,
         quiet: bool = False
     ):
         if video_profile.lower() not in supported_video_profiles:
@@ -79,12 +80,17 @@ class NetflixClient:
         self.manifest_language: str = language
         self.metadata_langage: str = language.split("-")[0]
         self.cookies: dict = read_data(cookies_file)
+        self.verbose: bool = verbose
         self.quiet: bool = quiet
         self.shaka_executable: str = shaka_executable
         self.msl: MSLClient = MSLClient(self)
 
     def log(self, *args):
         if not self.quiet:
+            print(*args)
+
+    def _verbose(self, *args):
+        if not self.verbose:
             print(*args)
 
     def get_metadata(self, netflix_id) -> dict:
@@ -263,7 +269,8 @@ class NetflixClient:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        await proc.communicate()
+        std = await proc.communicate()
+        self._verbose(std)
         
     async def _decrypt(self, _input, output, keys: list[str]):
         keys_arg = ",".join([
@@ -277,7 +284,9 @@ class NetflixClient:
             stderr=asyncio.subprocess.PIPE
         )
         std = await proc.communicate()
-        error = (std[0].decode()+std[1].decode()).strip().split("\n")[-1].strip()
+        self._verbose(std)
+        error = (std[0].decode()+std[1].decode()) \
+            .strip().split("\n")[-1].strip()
         if "finalized" not in error.lower():
             if os.path.exists(output):
                 os.remove(output)
@@ -291,7 +300,8 @@ class NetflixClient:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        await proc.communicate()
+        std = await proc.communicate()
+        self._verbose(std)
         os.remove(_input)
 
     async def _ffprobe(self, _input) -> dict:
@@ -300,7 +310,8 @@ class NetflixClient:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        await proc.communicate()
+        std = await proc.communicate()
+        self._verbose(std)
         data = json.load(open(f"{_input}.json", "r"))
         os.remove(f"{_input}.json")
         return data
@@ -313,7 +324,8 @@ class NetflixClient:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        await proc.communicate()
+        std = await proc.communicate()
+        self._verbose(std)
 
 class MSLClient:
     def __init__(self, config: NetflixClient):
