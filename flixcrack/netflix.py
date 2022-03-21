@@ -278,7 +278,7 @@ class NetflixClient:
         )
         std = await proc.communicate()
         error = (std[0].decode()+std[1].decode()).strip().split("\n")[-1].strip()
-        if "completed successfully" not in error.lower():
+        if "finalized" not in error.lower():
             if os.path.exists(output):
                 os.remove(output)
             raise DecryptionError(f"Error decrypting: {error}")
