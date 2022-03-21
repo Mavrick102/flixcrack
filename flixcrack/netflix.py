@@ -1,4 +1,5 @@
 import requests
+import wvproto
 import asyncio
 import base64
 import json
@@ -6,7 +7,6 @@ import time
 import os
 import re
 
-from .protos import wv_proto2_pb2 as wv_proto2
 from .types import Device, CDMSession, EncryptionKey
 from .muxer import Muxer
 from .parser import Parse
@@ -692,7 +692,7 @@ class CDM:
         return session_id
 
     def parse_init_data(self, init_data_b64):
-        cenc_header = wv_proto2.WidevineCencHeader()
+        cenc_header = wvproto.WidevineCencHeader()
         cenc_header.ParseFromString(base64.b64decode(init_data_b64)[32:])
         return cenc_header
 
@@ -702,9 +702,9 @@ class CDM:
 
     def set_service_certificate(self, session_id, cert_b64):
         session = self.sessions[session_id]
-        message = wv_proto2.SignedMessage()
+        message = wvproto.SignedMessage()
         message.ParseFromString(base64.b64decode(cert_b64))
-        service_certificate = wv_proto2.SignedDeviceCertificate()
+        service_certificate = wvproto.SignedDeviceCertificate()
         service_certificate.ParseFromString(
             message.Msg if message.Type
             else base64.b64decode(cert_b64)
@@ -714,24 +714,24 @@ class CDM:
 
     def get_license_request(self, session_id):
         session = self.sessions[session_id]
-        license_request = wv_proto2.SignedLicenseRequestRaw() \
-            if self.raw_pssh else wv_proto2.SignedLicenseRequest()
-        client_id = wv_proto2.ClientIdentification()
+        license_request = wvproto.SignedLicenseRequestRaw() \
+            if self.raw_pssh else wvproto.SignedLicenseRequest()
+        client_id = wvproto.ClientIdentification()
         with open(session.device.blob, "rb") as f:
             client_id.ParseFromString(f.read())
         if not self.raw_pssh:
-            license_request.Type = wv_proto2.SignedLicenseRequest.MessageType.Value("LICENSE_REQUEST")
+            license_request.Type = wvproto.SignedLicenseRequest.MessageType.Value("LICENSE_REQUEST")
             license_request.Msg.ContentId.CencId.Pssh.CopyFrom(session.init_data)
         else:
-            license_request.Type = wv_proto2.SignedLicenseRequestRaw.MessageType.Value("LICENSE_REQUEST")
+            license_request.Type = wvproto.SignedLicenseRequestRaw.MessageType.Value("LICENSE_REQUEST")
             license_request.Msg.ContentId.CencId.Pssh = session.init_data
-        license_type = wv_proto2.LicenseType.Value("OFFLINE") \
-            if session.offline else wv_proto2.LicenseType.Value("DEFAULT")
+        license_type = wvproto.LicenseType.Value("OFFLINE") \
+            if session.offline else wvproto.LicenseType.Value("DEFAULT")
         license_request.Msg.ContentId.CencId.LicenseType = license_type
         license_request.Msg.ContentId.CencId.RequestId = session_id
-        license_request.Msg.Type = wv_proto2.LicenseRequest.RequestType.Value("NEW")
+        license_request.Msg.Type = wvproto.LicenseRequest.RequestType.Value("NEW")
         license_request.Msg.RequestTime = int(time.time())
-        license_request.Msg.ProtocolVersion = wv_proto2.ProtocolVersion.Value("CURRENT")
+        license_request.Msg.ProtocolVersion = wvproto.ProtocolVersion.Value("CURRENT")
         license_request.Msg.ClientId.CopyFrom(client_id)
 
         key = RSA.importKey(open(session.device.private_key).read())
@@ -745,7 +745,7 @@ class CDM:
 
     def provide_license(self, session_id, license_b64):
         session = self.sessions[session_id]
-        license = wv_proto2.SignedLicense()
+        license = wvproto.SignedLicense()
         license.ParseFromString(base64.b64decode(license_b64))
         session.license = license
         oaep_cipher = PKCS1_OAEP.new(session.device_key)
@@ -786,10 +786,10 @@ class CDM:
             with open("parsed_lic.bin", "wb") as f:
                 f.write(license.SerializeToString())
         for key in license.Msg.Key:
-            key_id = key.Id or wv_proto2.License.KeyContainer.KeyType.Name(key.Type).encode("utf-8")
+            key_id = key.Id or wvproto.License.KeyContainer.KeyType.Name(key.Type).encode("utf-8")
             encrypted_key = key.Key
             iv = key.Iv
-            type = wv_proto2.License.KeyContainer.KeyType.Name(key.Type)
+            type = wvproto.License.KeyContainer.KeyType.Name(key.Type)
             cipher = AES.new(session.derived_keys["enc"], AES.MODE_CBC, iv=iv)
             decrypted_key = cipher.decrypt(encrypted_key)
             permissions = []
