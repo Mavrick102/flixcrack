@@ -21,7 +21,7 @@
 
 * Get Metadata (title, year, episodes, seasons...) with Shakti API
 * Get medias (videos, audios, audio descriptions, subtitles...)
-* Decryt Widevine DRM protected content
+* Decrypt Widevine DRM protected content
 * Automatically mux all your tracks
 * Nice pre-made format for file names
 * Very fast multi-connection downloads
