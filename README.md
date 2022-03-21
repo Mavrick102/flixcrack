@@ -60,7 +60,7 @@ async def main():
                 item["title"],
                 item["season"],
                 item["episode"],
-                "dux"
+                "dvx"
             )
         )
 asyncio.run(main())
