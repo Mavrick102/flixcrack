@@ -1,1 +1,1 @@
-from .netflix import NetflixClient, MSLClient
+from .netflix import NetflixClient
