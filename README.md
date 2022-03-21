@@ -47,7 +47,7 @@ client = NetflixClient(
     device="", # Insert your CDM folder name here
     quality=1080,
     audio_language=["English"],
-    metadata_language="it-IT",
+    language="it-IT", # Metadata language
     video_profile="high",
     quiet=False
 )
