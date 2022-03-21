@@ -13,7 +13,7 @@
 </p>
 
 <h1 align="center">
-  <a href="https://github.com/stefanodvx/flixcrack"><img src="https://github.com/stefanodvx/flixcrack/blob/main/screen.png?raw=true" alt="FlixCrack" height=230></a>
+  <a href="https://github.com/stefanodvx/flixcrack"><img src="https://github.com/stefanodvx/flixcrack/blob/main/screen.png?raw=true" alt="FlixCrack"></a>
 </h1>
 
 ## Features
