@@ -266,8 +266,10 @@ class NetflixClient:
         await proc.communicate()
         
     async def _decrypt(self, _input, output, keys: list[str]):
-        keys_arg = ",".join([f"key={key}:key_id={kid}" for kid, key in
-            map(lambda x: x.split(":"), keys)])
+        keys_arg = ",".join([
+            f"label={random.randint(100)}:key_id={kid}:key={key}" for kid, key in
+            map(lambda x: x.split(":"), keys)
+        ])
         proc = await asyncio.create_subprocess_exec(
             self.shaka_executable, f"input={_input},stream=video,output={output}", 
             "--enable_raw_key_decryption", "--keys", keys_arg,
@@ -275,9 +277,8 @@ class NetflixClient:
             stderr=asyncio.subprocess.PIPE
         )
         std = await proc.communicate()
-        error = std[0].decode().strip().split("\n")[-1].strip()
+        error = (std[0].decode()+std[1].decode()).strip().split("\n")[-1].strip()
         if "completed successfully" not in error.lower():
-            print(std)
             if os.path.exists(output):
                 os.remove(output)
             raise DecryptionError(f"Error decrypting: {error}")
