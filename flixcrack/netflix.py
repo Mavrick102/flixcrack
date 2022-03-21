@@ -1,5 +1,4 @@
 import requests
-import wvproto
 import asyncio
 import base64
 import json
@@ -7,6 +6,7 @@ import time
 import os
 import re
 
+from .protos import wvproto
 from .types import Device, CDMSession, EncryptionKey
 from .muxer import Muxer
 from .parser import Parse
