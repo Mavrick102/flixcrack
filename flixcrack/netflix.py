@@ -260,7 +260,7 @@ class NetflixClient:
         if season:
             filename += f"S{str(season).zfill(2)}" + \
                 f"E{str(episode).zfill(2)}."
-            filename += f"NF.WEBDL.$quality$p-{group}.mkv"
+        filename += f"NF.WEBDL.$quality$p-{group}.mkv"
         return filename
 
     async def _get_subtitles(self, url, output):
