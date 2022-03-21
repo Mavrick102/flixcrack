@@ -6,7 +6,7 @@ import time
 import os
 import re
 
-from .protos import wvproto
+from .protos import wv_proto2_pb2 as wvproto
 from .types import Device, CDMSession, EncryptionKey
 from .muxer import Muxer
 from .parser import Parse
