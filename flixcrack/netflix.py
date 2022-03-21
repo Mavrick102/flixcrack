@@ -275,6 +275,7 @@ class NetflixClient:
             stderr=asyncio.subprocess.PIPE
         )
         std = await proc.communicate()
+        self.log(std)
         error = std[0].decode().strip().split("\n")[-1].strip()
         if "completed successfully." not in error.lower():
             os.remove(output)
