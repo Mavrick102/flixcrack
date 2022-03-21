@@ -90,7 +90,7 @@ class NetflixClient:
             print(*args)
 
     def _verbose(self, *args):
-        if not self.verbose:
+        if self.verbose:
             print(*args)
 
     def get_metadata(self, netflix_id) -> dict:
