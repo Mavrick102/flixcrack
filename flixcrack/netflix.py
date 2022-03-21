@@ -267,7 +267,7 @@ class NetflixClient:
         
     async def _decrypt(self, _input, output, keys: list[str]):
         keys_arg = ",".join([
-            f"label={random.randint(100)}:key_id={kid}:key={key}" for kid, key in
+            f"label={random.randint(1, 100)}:key_id={kid}:key={key}" for kid, key in
             map(lambda x: x.split(":"), keys)
         ])
         proc = await asyncio.create_subprocess_exec(
